@@ -2,6 +2,9 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import index from './views/index.vue'
 import Login from "@/views/Login";
+import studentDetail from "./views/studentDetail";
+import unitsDetail from "./views/unitsDetail";
+import questionDetail from "./views/questionDetail";
 
 Vue.use(Router)
 
@@ -10,8 +13,6 @@ export default new Router({
     {
       path: '/',
       redirect: '/login',
-      name: 'login',
-      component: Login
     },
     {
       path: '/about',
@@ -25,6 +26,27 @@ export default new Router({
       path: '/login',
       name:'login',
       component: Login
+    },
+    {
+      path: '/index',
+      name: 'index',
+      component: index
+    },
+    {
+      path: '/studentDetail',
+      name: 'studentDetail',
+      component: studentDetail
+    },
+    {
+      path: '/unitsDetail',
+      name: 'unitsDetail',
+      component: unitsDetail
+    },
+    {
+      path: '/questionDetail',
+      name: 'questionDetail',
+      component: questionDetail,
+      props: true
     }
   ]
 })

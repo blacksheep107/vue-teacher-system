@@ -1,10 +1,11 @@
 import axios from "axios";
+axios.defaults.baseURL = 'https://api.weixin.qq.com';
 import store from "@/store";
 export default {
     getAccessToken(){
         return axios({
             method: 'GET',
-            url: 'https://api.weixin.qq.com/cgi-bin/token',
+            url: '/cgi-bin/token',
             params: {
                 grant_type:'client_credential',
                 appid: store.state.APPID,
@@ -12,14 +13,17 @@ export default {
             }
         })
     },
-    login(data) {
+    query(data) {
+        let obj = Object.assign(data,{
+            'env': store.state.env
+        })
         return axios({
             method: 'POST',
-            url: 'https://api.weixin.qq.com/tcb/databasequery',
+            url: '/tcb/databasequery',
             params: {
                 access_token:store.state.access_token
             },
-            data
+            data:obj
         })
     },
 }
