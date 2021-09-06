@@ -78,6 +78,17 @@
           <el-input type="textarea" autosize v-model="addForm.content"></el-input>
         </el-form-item>
         <el-form-item v-if="addForm.type=='单选题'" label="答案">
+          <el-button @click="addNewRadioAnswer" icon="el-icon-plus" style="border: none">添加答案</el-button>
+
+          <el-input v-for="(item, index) in radioAnsArr" v-model="item.content" class="choose-content">
+            <template slot="prepend">{{String.fromCharCode(65+index)}}</template>
+            <template slot="suffix">
+              <div class="radio-suffix">
+                <el-radio :label="index" v-model="addForm.answer">{{''}}</el-radio>
+                <i class="el-icon-error delIcon" @click="deleteRadio(index)"></i>
+              </div>
+            </template>
+          </el-input>
 
         </el-form-item>
         <el-form-item label="解析">
@@ -110,7 +121,18 @@ export default {
         point: 1,
         content: '',
         analysis: '',
+        radioAnswer: '',
+        checkAnswer: [],
+        fillAnswer: [],
       },
+      radioAnsArr: [
+        {
+          content: ''
+        },
+        {
+          content: '',
+        }
+      ],
       questionTypes: [
           '单选题',
           '多选题',
@@ -127,6 +149,15 @@ export default {
     init() {
       [this.chance, this.name, this.questions] = [this.$route.params.chance, this.$route.params.name, this.$route.params.questions];
       this.getAllQuestions();
+    },
+    deleteRadio( index) {
+      this.radioAnsArr.splice(index,1);
+    },
+    addNewRadioAnswer() {
+      this.radioAnsArr.push({
+        value: String.fromCharCode(65+this.radioAnsArr.length),
+        content: ''
+      });
     },
     resetForm() {
       this.form = JSON.parse(JSON.stringify(this.oldForm));
@@ -178,11 +209,28 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style>
+</style>
+<style scoped lang="scss">
 .choose-content{
   margin-top: 10px;
 }
 .type{
   margin-left: -300px;
+}
+.delIcon{
+  font-size: 20px;
+  margin-right: 20px;
+  &:hover{
+    cursor: pointer;
+    color: red;
+  }
+}
+.radio-suffix{
+  height: 40px;
+  line-height: 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 </style>
