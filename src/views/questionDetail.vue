@@ -67,7 +67,7 @@
     <el-dialog :visible.sync="addQuestionDialog">
       <el-form>
         <el-form-item label="题目类型">
-          <el-select v-model="addForm.type">
+          <el-select v-model="addForm.type" @change="changeType">
             <el-option v-for="item in questionTypes" :label="item" :key="item" :value="item"></el-option>
           </el-select>
         </el-form-item>
@@ -76,6 +76,19 @@
         </el-form-item>
         <el-form-item label="题目内容">
           <el-input type="textarea" autosize v-model="addForm.content"></el-input>
+        </el-form-item>
+        <el-form-item label="图片">
+          <el-upload
+              action="#"
+              list-type="picture"
+              :auto-upload="false"
+              :file-list="addForm.fileList"
+              :on-change="changeFiles"
+              :on-remove="removeFile"
+              multiple
+          >
+            <el-button>点击上传</el-button>
+          </el-upload>
         </el-form-item>
         <el-form-item v-if="addForm.type=='单选题'" label="答案">
           <el-button @click="addNewRadioAnswer" icon="el-icon-plus" style="border: none">添加答案</el-button>
@@ -91,8 +104,37 @@
           </el-input>
 
         </el-form-item>
+        <el-form-item v-else-if="addForm.type=='多选题'" label="答案">
+          <el-button @click="addNewCheckAnswer" icon="el-icon-plus" style="border: none">添加答案</el-button>
+
+          <el-input v-for="(item, index) in checkAnsArr" v-model="item.content" class="choose-content">
+            <template slot="prepend">{{String.fromCharCode(65+index)}}</template>
+            <template slot="suffix">
+              <div class="radio-suffix">
+                <el-checkbox :label="index" v-model="addForm.answer[index]">{{''}}</el-checkbox>
+                <i class="el-icon-error delIcon" @click="deleteCheck(index)"></i>
+              </div>
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item v-else-if="addForm.type=='填空题'" label="答案">
+          <el-button @click="addNewBlankAnswer" icon="el-icon-plus" style="border: none">添加答案</el-button>
+
+          <el-input v-for="(item, index) in blankAnsArr" v-model="item.content" class="choose-content">
+            <template slot="prepend">答案{{index+1}}</template>
+            <template slot="suffix">
+              <div class="blank-suffix">
+                <i class="el-icon-error delIcon" @click="deleteBlank(index)"></i>
+              </div>
+            </template>
+          </el-input>
+        </el-form-item>
         <el-form-item label="解析">
           <el-input type="textarea" autosize v-model="addForm.analysis"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button @click="addQuestion" type="primary">添加</el-button>
+          <el-button @click="resetAddForm">重置</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -121,10 +163,13 @@ export default {
         point: 1,
         content: '',
         analysis: '',
-        radioAnswer: '',
-        checkAnswer: [],
-        fillAnswer: [],
+        // radioAnswer: '',
+        // checkAnswer: [],
+        // fillAnswer: [],
+        answer: '',
+        fileList: [],
       },
+      oldAddForm: {},
       radioAnsArr: [
         {
           content: ''
@@ -132,6 +177,19 @@ export default {
         {
           content: '',
         }
+      ],
+      checkAnsArr: [
+        {
+          content: ''
+        },
+        {
+          content: '',
+        }
+      ],
+      blankAnsArr: [
+        {
+          content: ''
+        },
       ],
       questionTypes: [
           '单选题',
@@ -146,9 +204,33 @@ export default {
     this.init();
   },
   methods: {
+    changeFiles(file){
+      this.addForm.fileList.push(file)
+    },
+    addQuestion(){
+      console.log(this.addForm)
+      // 上传图片
+
+    },
+    resetAddForm(){
+      this.form = JSON.parse(JSON.stringify(this.oldAddForm));
+    },
+    removeFile(file, fileList){
+      this.addForm.fileList = fileList;
+    },
     init() {
       [this.chance, this.name, this.questions] = [this.$route.params.chance, this.$route.params.name, this.$route.params.questions];
       this.getAllQuestions();
+      this.oldAddForm = JSON.parse(JSON.stringify(this.addForm))
+    },
+    changeType() {
+      if (this.addForm.type == '单选题') {
+        this.addForm.answer = '';
+      }else if(this.addForm.type=='多选题') {
+        this.addForm.answer = [false, false];
+      }else if(this.addForm.type == '填空题') {
+        this.addForm.answer = [''];
+      }
     },
     deleteRadio( index) {
       this.radioAnsArr.splice(index,1);
@@ -158,6 +240,25 @@ export default {
         value: String.fromCharCode(65+this.radioAnsArr.length),
         content: ''
       });
+    },
+    addNewCheckAnswer() {
+      this.checkAnsArr.push({
+        value: String.fromCharCode(65+this.checkAnsArr.length),
+        content: ''
+      });
+      this.addForm.answer.push(false);
+    },
+    addNewBlankAnswer() {
+      this.blankAnsArr.push({
+        content: ''
+      });
+    },
+    deleteBlank(index) {
+      this.blankAnsArr.splice(index, 1);
+    },
+    deleteCheck(index) {
+      this.checkAnsArr.splice(index,1);
+      this.addForm.answer.splice(index, 1);
     },
     resetForm() {
       this.form = JSON.parse(JSON.stringify(this.oldForm));
@@ -227,6 +328,15 @@ export default {
   }
 }
 .radio-suffix{
+  height: 40px;
+  line-height: 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-width: 94px;
+  justify-content: space-between;
+}
+.blank-suffix{
   height: 40px;
   line-height: 40px;
   display: flex;
