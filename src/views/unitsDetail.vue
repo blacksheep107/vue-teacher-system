@@ -15,12 +15,14 @@
           </template>
         </el-table-column>
       </el-table>
-<!--      <div class="add_wrap">-->
-<!--        <el-input placeholder="请输入新章节名称">-->
-<!--          <el-button>添加</el-button>-->
-<!--        </el-input>-->
-<!--      </div>-->
     </div>
+    <el-dialog class="dialog" :visible.sync="newUnitDialog">
+      <el-input placeholder="输入新章节名称" v-model="newUnitName">
+        <template slot="append">
+          <div @click="submitNewUnit">添加</div>
+        </template>
+      </el-input>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -34,6 +36,8 @@ export default {
       classid: '',
       classInfo: {},
       questionTitle: [],
+      newUnitName: '',
+      newUnitDialog: false,
     }
   },
   mounted() {
@@ -59,16 +63,24 @@ export default {
         }
       })
     },
+    submitNewUnit(){
+      console.log(this.newUnitName)
+    },
     addNewUnit() {
+      this.newUnitDialog = true;
     },
     naviToQuestionDetail(row) {
       // 不用window，会有刷新问题
       this.$router.push({
         name: 'questionDetail',
         params: {
-          chance: row.chance,
-          name: row.name,
-          questions: row.questions
+          unitdata: row,
+          classid: this.classInfo.classid,
+          homework: this.classInfo.homework,
+          // chance: row.chance,
+          // name: row.name,
+          // questions: row.questions,
+          // classname: this.classname,
         }
       })
     },
@@ -84,3 +96,12 @@ export default {
   },
 }
 </script>
+<style scoped lang="scss">
+.el-dialog{
+  div{
+    &:hover{
+      cursor: pointer;
+    }
+  }
+}
+</style>

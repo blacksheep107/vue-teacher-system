@@ -26,5 +26,64 @@ export default {
             data:obj
         })
     },
+    add(data) {
+        let obj = Object.assign(data,{
+            'env': store.state.env
+        })
+        return axios({
+            method: 'POST',
+            url: '/tcb/databaseadd',
+            params: {
+                access_token:store.state.access_token
+            },
+            data:obj
+        })
+    },
+    update(data) {
+        let obj = Object.assign(data,{
+            'env': store.state.env
+        })
+        return axios({
+            method: 'POST',
+            url: '/tcb/databaseupdate',
+            params: {
+                access_token:store.state.access_token
+            },
+            data:obj
+        })
+    },
+    deleteRecord(data) {
+        let obj = Object.assign(data,{
+            'env': store.state.env
+        })
+        return axios({
+            method: 'POST',
+            url: '/tcb/databasedelete',
+            params: {
+                access_token:store.state.access_token
+            },
+            data:obj
+        })
+    },
+    uploadFile(data) {
+        let obj = Object.assign(data,{
+            'env': store.state.env
+        })
+        return axios({
+            method: 'POST',
+            url: '/tcb/uploadfile',
+            params: {
+                access_token:store.state.access_token
+            },
+            data:obj
+        })
+    },
+    fileUrl(url, data) {
+        return axios({
+            method: 'POST',
+            url: url,
+            data:data
+        })
+    },
 }
 

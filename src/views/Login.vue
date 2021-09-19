@@ -30,6 +30,7 @@ export default {
     login(){
       api.getAccessToken().then(res=>{
         $store.state.access_token = res.data.access_token;
+        localStorage.setItem('access_token', res.data.access_token);
         api.query({
           query: `db.collection("teacher").where({id:"${this.form.id}"}).limit(1).get()`
         }).then(res=>{

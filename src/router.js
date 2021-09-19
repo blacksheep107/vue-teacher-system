@@ -5,6 +5,7 @@ import Login from "@/views/Login";
 import studentDetail from "./views/studentDetail";
 import unitsDetail from "./views/unitsDetail";
 import questionDetail from "./views/questionDetail";
+import finishStatus from "./views/finishStatus";
 
 Vue.use(Router)
 
@@ -46,6 +47,12 @@ export default new Router({
       path: '/questionDetail',
       name: 'questionDetail',
       component: questionDetail,
+      props: true
+    },
+    {
+      path: '/finishStatus',
+      name: 'finishStatus',
+      component: finishStatus,
       props: true
     }
   ]
