@@ -3,6 +3,9 @@
     <div class="header">
       <h1>班级管理</h1>
     </div>
+    <div class="tools">
+      <el-button icon="el-icon-plus">添加班级</el-button>
+    </div>
     <div class="class">
       <el-table
       :data="classInfo"
@@ -36,6 +39,8 @@ import $store from '@/store.js';
     },
     methods:{
       naviToStudent(row){
+        localStorage.removeItem('classInfo');
+        localStorage.removeItem('studentInfo');
         let url = this.$router.resolve({
           path: '/studentDetail',
           query: {
@@ -72,6 +77,12 @@ import $store from '@/store.js';
   color: blue;
   &:hover{
     cursor: pointer;
+  }
+}
+.tools{
+  .el-button{
+    border: none;
+    float: left;
   }
 }
 </style>

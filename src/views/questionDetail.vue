@@ -19,7 +19,7 @@
       <el-table-column label="已完成学生数" prop="studentsdid.length"></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
-          <el-button @click="questionDialogOpen(scope.row)" type="text">题目详情</el-button>
+          <el-button @click="questionDialogOpen(scope.row, scope.$index)" type="text">题目详情</el-button>
           <el-button @click="finishStatue(scope.row)" type="text">完成状态</el-button>
           <el-button @click="deleteQuestion(scope.row)" type="text">删除</el-button>
         </template>
@@ -29,6 +29,9 @@
       <el-form label-position="left">
         <el-form-item label="类型" prop="form.type">
           <el-tag class="type" effect="dark" type="success">{{form.type}}</el-tag>
+        </el-form-item>
+        <el-form-item label="难度" prop="form.level">
+          <el-tag class="type" effect="dark" type="warning">{{levelarr[form.level]}}</el-tag>
         </el-form-item>
         <el-form-item label="分值">
           <el-input v-model="form.point"></el-input>
@@ -59,8 +62,8 @@
           <el-input v-model="form.analysis" type="textarea" autosize></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button @click="changeQuestion" type="primary">修改</el-button>
-          <el-button @click="resetForm">重置</el-button>
+            <el-button @click="changeQuestion()" type="primary">修改</el-button>
+            <el-button @click="resetForm">重置</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -223,6 +226,7 @@ export default {
       ],
       questionDialogShown: false,
       addQuestionDialog: false,
+      formIndex: 0,
     }
   },
   mounted() {
@@ -237,6 +241,7 @@ export default {
       console.log(row);
       let _id = row._id;
       this.$confirm('是否删除题目？','提示').then(()=> {
+        this.$loading();
         this.refreshQuestions().then((data) => {
           let promiseArr = [this.deleteQuestionInClass(data.homework, row.unitname, _id),
             this.deleteQuestionSelf(_id)
@@ -249,6 +254,9 @@ export default {
               return item._id === _id;
             }),1);
             this.$message.success('删除题目成功');
+            this.$loading().close();
+          }).catch(err=>{
+            this.$message.error('删除题目失败！')
           })
         })
       }).catch(()=>{});
@@ -328,7 +336,7 @@ export default {
       })
     },
     addQuestion(){
-      
+      this.$loading();
       console.log(this.addForm)
       this.uploadPictures().then((res)=>{
         // 上传图片完成
@@ -383,6 +391,7 @@ export default {
               this.getQuestion(id);
               this.$message.success('添加成功');
               this.addQuestionDialog = false;
+              this.$loading().close();
             }
           })
         }
@@ -404,11 +413,14 @@ export default {
       this.addForm.fileList = fileList;
     },
     init() {
+      this.$loading();
       [this.chance, this.name, this.questions, this.classname] =
           [this.$route.params.unitdata.chance, this.$route.params.unitdata.name,
             this.$route.params.unitdata.questions,this.$route.params.unitdata.classname];
-      this.getAllQuestions();
       this.oldAddForm = JSON.parse(JSON.stringify(this.addForm))
+      this.getAllQuestions().then(()=>{
+        this.$loading().close();
+      });
     },
     changeType() {
       if (this.addForm.type == '单选题') {
@@ -448,17 +460,33 @@ export default {
       this.addForm.answer.splice(index, 1);
     },
     resetForm() {
-      this.form = JSON.parse(JSON.stringify(this.oldForm));
+      this.$confirm('是否重置？','提示').then(()=>{
+        this.form = JSON.parse(JSON.stringify(this.oldForm));
+      })
     },
     changeQuestion() {
       this.$confirm('确定修改题目？','提示').then(()=>{
+        this.$loading();
         console.log(this.form);
-      })
+        api.update({
+          query: `db.collection("questions").doc('${this.form._id}').update({data:${JSON.stringify(this.form)}})`
+        }).then(res=>{
+          console.log(res.data)
+          if (res.data.errmsg === 'ok' && res.data.modified === 1) {
+            this.getAllQuestions().then(()=>{
+              this.questionDialogShown = false;
+              this.$message.success('修改成功');
+              this.$loading().close();
+            });
+          }
+        })
+      }).catch(()=>{})
     },
-    questionDialogOpen(row) {
+    questionDialogOpen(row, index) {
       this.questionDialogShown = true;
       this.form = JSON.parse(JSON.stringify(row));
       this.oldForm = JSON.parse(JSON.stringify(row));
+      this.formIndex = index; // 正在修改的题目下标
     },
     addQuestions() {
       this.form = {};
@@ -466,32 +494,44 @@ export default {
       this.addQuestionDialog = true;
     },
     getAllQuestions() {
-      this.questions.forEach(item=>{
-        this.getQuestion(item);
+      return new Promise(async resolve => {
+        this.questionsDetail = [];
+        for (let i = 0; i < this.questions.length; i++) {
+          let item = this.questions[i];
+          await this.getQuestion(item);
+        }
+        resolve();
       })
     },
     getQuestion(id) {
-      api.query({
-        query: `db.collection("questions").doc("${id}").get()`
-      }).then(res=>{
-        let obj = JSON.parse(res.data.data);
-        console.log(obj);
-        let tmp = obj.type;
-        if (tmp == 'fillblank') {
-          obj.type = '填空题';
-          for (let i=0;i<obj.answer.length;i++) {
-            let str = obj.answer[i];
-            obj.answer[i] = {
-              value: str
+      return new Promise(resolve => {
+        api.query({
+          query: `db.collection("questions").doc("${id}").get()`
+        }).then(res=>{
+          let obj = JSON.parse(res.data.data);
+          console.log(obj);
+          let tmp = obj.type;
+          if (tmp == 'fillblank') {
+            obj.type = '填空题';
+            for (let i=0;i<obj.answer.length;i++) {
+              let str = obj.answer[i];
+              obj.answer[i] = {
+                value: str
+              }
             }
+          } else if (obj.choosenum>1) {
+            obj.type = '多选题';
+          } else {
+            obj.type = '单选题';
           }
-        } else if (obj.choosenum>1) {
-          obj.type = '多选题';
-        } else {
-          obj.type = '单选题';
-        }
-        this.questionsDetail.push(obj);
+          this.questionsDetail.push(obj);
+          resolve();
+        }).catch(err=>{
+          this.$message.error('请求失败！');
+          this.$loading().close();
+        })
       })
+
     },
   }
 }

@@ -2,6 +2,8 @@ import Vue from 'vue'
 import App from './App.vue'
 import axios from "axios";
 import VueAxios from 'vue-axios'
+import * as echarts from 'echarts'
+Vue.prototype.$echarts = echarts
 Vue.config.productionTip = false
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';

@@ -36,6 +36,7 @@ export default {
         }).then(res=>{
           let obj = JSON.parse(res.data.data[0]);
           if (this.form.password = obj.password) {
+            localStorage.setItem('userInfo', JSON.stringify(obj));
             this.$message.success('登录成功！');
             $store.state.userInfo = obj;
             this.$router.push('/index');
