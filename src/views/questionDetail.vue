@@ -42,9 +42,9 @@
         <el-form-item v-if="form.pictures!==undefined&&form.pictures.length>0" label="图片">
           <el-image
               v-for="item in form.pictures"
-              style="width: 100px;height: 100px;"
+              style="width: 120px;height: 120px;"
               :src="item"
-              :fit="fill"></el-image>
+              fit="fill"></el-image>
         </el-form-item>
         <el-form-item v-if="form.type=='单选题'||form.type=='多选题'" label="选项">
           <el-input v-for="item in form.choosecontent" v-model="item.content" class="choose-content">
@@ -510,6 +510,31 @@ export default {
         }).then(res=>{
           let obj = JSON.parse(res.data.data);
           console.log(obj);
+          let data = obj;
+          if (typeof data.pictures == 'string') {
+            data.pictures = [data.pictures];
+          }
+          if (Array.isArray(data.pictures)) {
+            api.batchdownloadfile({
+              'file_list':
+                data.pictures.map(item=>{
+                  return {
+                    fileid: item,
+                    'max_age': 7200
+                  }
+                })
+            }).then(res=>{
+              console.log(res.data);
+              let data = res.data;
+              if (data.errmsg == 'ok') {
+                obj.pictures = data.file_list.map(item=>{
+                  return item['fileid'];
+                });
+              }else {
+                this.$message.error('获取图片失败！');
+              }
+            })
+          }
           let tmp = obj.type;
           if (tmp == 'fillblank') {
             obj.type = '填空题';

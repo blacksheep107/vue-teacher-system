@@ -25,7 +25,7 @@ module.exports = {
         // },
         proxy: {
             '^/': {
-                target: 'https://api.weixin.qq.com',
+                target: 'http://120.78.155.149:3001',
                 changeOrigin: true,
                 https: true,
             }

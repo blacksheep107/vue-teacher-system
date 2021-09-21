@@ -1,5 +1,5 @@
 import axios from "axios";
-// axios.defaults.baseURL = 'https://api.weixin.qq.com';
+if (process.env.NODE_ENV === "production") axios.defaults.baseURL = 'http://120.78.155.149:3001';
 import store from "@/store";
 export default {
     getAccessToken(){
@@ -78,12 +78,35 @@ export default {
             data:obj
         })
     },
-    fileUrl(url, data) {
+    // fileUrl(url, data) {
+    //     return axios({
+    //         method: 'POST',
+    //         url: url,
+    //         data:data
+    //     })
+    // },
+    fileUrl(url,data) {
         return axios({
             method: 'POST',
-            url: url,
-            data:data
+            url: '/fileurl',
+            data: {
+                data: data,
+                url: url
+            }
         })
     },
+    batchdownloadfile(data) {
+    let obj = Object.assign(data,{
+        'env': store.state.env
+    })
+        return axios({
+            method: 'POST',
+            url: '/tcb/batchdownloadfile',
+            params: {
+                access_token:store.state.access_token
+            },
+            data: obj
+        })
+}
 }
 
