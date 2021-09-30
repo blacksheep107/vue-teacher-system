@@ -62,16 +62,16 @@ export default {
       this.tab = tab.name;
     },
     init() {
-      if (localStorage['classInfo'] === undefined || localStorage['studentInfo'] === undefined) {
+      // if (localStorage['classInfo'] === undefined || localStorage['studentInfo'] === undefined) {
         this.$loading();
         $store.state.access_token = this.$route.query.access_token;
         [this.classname, this.classid] = [this.$route.query.classname, this.$route.query.classid];
         this.getClassInfo();
-      } else {
-        this.classInfo = JSON.parse(localStorage['classInfo']);
-        this.studentInfo = JSON.parse(localStorage['studentInfo']);
-        this.sortQuestionsTitle();
-      }
+      // } else {
+      //   this.classInfo = JSON.parse(localStorage['classInfo']);
+      //   this.studentInfo = JSON.parse(localStorage['studentInfo']);
+      //   this.sortQuestionsTitle();
+      // }
     },
     sortScore(a, b, name){
       if (a.score[name] == undefined||a.score[name].score === undefined) a.score[name]={
@@ -92,7 +92,7 @@ export default {
       }).then(res=>{
         if (res.data.data.length>0) {
           this.classInfo = JSON.parse(res.data.data);
-          localStorage.setItem('classInfo', res.data.data);
+          // localStorage.setItem('classInfo', res.data.data);
           this.sortQuestionsTitle();
           this.getLotsStudentInfo();
         }else {
@@ -114,6 +114,7 @@ export default {
       let arr = [];
       new Promise(resolve => {
         let count = 0;
+        if (tmp.length == 0)  resolve();
         for (let i=0;i<tmp.length;i++) {
           this.getStudentInfo(tmp[i]).then(res=>{
             arr.push(res);
@@ -123,7 +124,7 @@ export default {
         }
       }).then(()=>{
         this.studentInfo = arr;
-        localStorage.setItem('studentInfo', JSON.stringify(arr));
+        // localStorage.setItem('studentInfo', JSON.stringify(arr));
         // this.sortQuestionsTitle();
         this.$loading().close();
       })

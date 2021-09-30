@@ -27,11 +27,11 @@
     </el-table>
     <el-dialog :visible.sync="questionDialogShown">
       <el-form label-position="left">
-        <el-form-item label="类型" prop="form.type">
-          <el-tag class="type" effect="dark" type="success">{{form.type}}</el-tag>
+        <el-form-item label="类型" class="type" prop="form.type">
+          <el-tag effect="dark" type="success">{{form.type}}</el-tag>
         </el-form-item>
-        <el-form-item label="难度" prop="form.level">
-          <el-tag class="type" effect="dark" type="warning">{{levelarr[form.level]}}</el-tag>
+        <el-form-item label="难度" class="type" prop="form.level">
+          <el-tag effect="dark" type="warning">{{levelarr[form.level]}}</el-tag>
         </el-form-item>
         <el-form-item label="分值">
           <el-input v-model="form.point"></el-input>
@@ -267,7 +267,6 @@ export default {
           query: `db.collection("class").where({classid:"${this.$route.params.classid}"}).get()`
         }).then(res=>{
           let data = JSON.parse(res.data.data[0]);
-          console.log(data);
           this.questions = data.homework[this.name].questions;
           resolve(data);
         })
@@ -566,7 +565,7 @@ export default {
   margin-top: 10px;
 }
 .type{
-  margin-left: -300px;
+  text-align: start;
 }
 .delIcon{
   font-size: 20px;

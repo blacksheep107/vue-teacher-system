@@ -43,6 +43,8 @@ export default {
           } else {
             this.$message.error('账号或密码错误！');
           }
+        }).catch(err=>{
+          this.$message.error('账号或密码错误！');
         })
       })
     },
@@ -51,10 +53,11 @@ export default {
 </script>
 <style scoped>
 .el-form{
-  width: 400px;
+  width: 300px;
   place-content: center;
   position: absolute;
-  top: 20%;
-  left: calc(50% - 200px);
+  transform: translate(-56%, -60%);
+  left: 50%;
+  top: 50%;
 }
 </style>

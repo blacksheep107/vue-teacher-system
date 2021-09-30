@@ -17,7 +17,7 @@
         </el-table-column>
       </el-table>
     </div>
-    <el-dialog class="dialog" :visible.sync="newUnitDialog">
+    <el-dialog width="20rem" :visible.sync="newUnitDialog">
       <el-form>
         <el-form-item label="新章节序号（自动填入）" required>
           <el-input :value="questionTitle.length+1" disabled></el-input>
