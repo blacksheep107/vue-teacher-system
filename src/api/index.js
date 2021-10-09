@@ -1,9 +1,19 @@
 import axios from "axios";
 if (process.env.NODE_ENV === "production") axios.defaults.baseURL = 'http://120.78.155.149:3001';
 import store from "@/store";
+let api = axios.create({
+    timeout: 20000, // 20s超时
+});
+api.interceptors.response.use(response=>{
+    if (response.status === 200) {
+        return Promise.resolve(response);
+    }else {
+        return Promise.reject(response);
+    }
+})
 export default {
     getAccessToken(){
-        return axios({
+        return api({
             method: 'GET',
             url: '/cgi-bin/token',
             params: {

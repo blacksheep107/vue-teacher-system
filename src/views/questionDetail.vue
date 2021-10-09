@@ -561,6 +561,9 @@ export default {
 }
 </script>
 <style scoped lang="scss">
+/deep/.el-dialog{
+  min-width: 22rem;
+}
 .choose-content{
   margin-top: 10px;
 }

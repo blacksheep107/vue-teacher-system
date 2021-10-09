@@ -8,7 +8,7 @@
         <el-input type="password" v-model="form.password"></el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="login">登录</el-button>
+        <el-button type="primary" @click="login" :loading="form.loading">登录</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -23,11 +23,13 @@ export default {
       form:{
         id:'',
         password:'',
+        loading: false,
       }
     }
   },
   methods:{
     login(){
+      this.form.loading = true;
       api.getAccessToken().then(res=>{
         $store.state.access_token = res.data.access_token;
         localStorage.setItem('access_token', res.data.access_token);
@@ -35,7 +37,7 @@ export default {
           query: `db.collection("teacher").where({id:"${this.form.id}"}).limit(1).get()`
         }).then(res=>{
           let obj = JSON.parse(res.data.data[0]);
-          if (this.form.password = obj.password) {
+          if (this.form.password === obj.password) {
             localStorage.setItem('userInfo', JSON.stringify(obj));
             this.$message.success('登录成功！');
             $store.state.userInfo = obj;
@@ -43,8 +45,10 @@ export default {
           } else {
             this.$message.error('账号或密码错误！');
           }
+          this.form.loading = false;
         }).catch(err=>{
           this.$message.error('账号或密码错误！');
+          this.form.loading = false;
         })
       })
     },
